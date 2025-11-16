@@ -19,6 +19,41 @@ namespace Api.Data
             modelBuilder.Entity<User>()
               .HasIndex(u => u.Email)
               .IsUnique();
+
+            modelBuilder.Entity<Patient>()
+              .HasOne(p => p.User)
+              .WithOne()
+              .HasForeignKey<Patient>(p => p.UserId)
+              .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Doctor>()
+              .HasOne(d => d.User)
+              .WithOne()
+              .HasForeignKey<Doctor>(d => d.UserId)
+              .OnDelete((DeleteBehavior.Cascade));
+            modelBuilder.Entity<Appointment>()
+              .HasOne(a => a.Patient)
+              .WithMany()
+              .HasForeignKey(a => a.PatientId)
+              .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Appointment>()
+              .HasOne(a => a.Doctor)
+              .WithMany(d => d.Appointments)
+              .HasForeignKey(a => a.DoctorId)
+              .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MedicalRecord>()
+              .HasOne(m => m.Patient)
+              .WithMany(p => p.MedicalRecords)
+              .HasForeignKey(m => m.PatientId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Appointment>()
+              .Property(a => a.Status)
+              .HasDefaultValue("Booked");
+            modelBuilder.Entity<MedicalRecord>()
+              .Property(m => m.CreatedAt)
+              .HasDefaultValueSql("GETDATE()");
+
+
         }
 
     }

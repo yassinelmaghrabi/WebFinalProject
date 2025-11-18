@@ -31,6 +31,30 @@ namespace Api.Services
             return appointment;
 
         }
+        public List<Appointment> GetAppointmentsFor(int userId, string role)
+        {
+            if (role == "Doctor")
+            {
+                var doctor = _db.Doctors.FirstOrDefault(d => d.UserId == userId);
+                if (doctor == null) return new List<Appointment>();
+
+                return _db.Appointments
+                    .Where(a => a.DoctorId == doctor.Id)
+                    .ToList();
+            }
+            else if (role == "Patient")
+            {
+                var patient = _db.Patients.FirstOrDefault(p => p.UserId == userId);
+                if (patient == null) return new List<Appointment>();
+
+                return _db.Appointments
+                    .Where(a => a.PatientId == patient.Id)
+                    .ToList();
+            }
+
+            return new List<Appointment>();
+        }
+
 
     }
 }

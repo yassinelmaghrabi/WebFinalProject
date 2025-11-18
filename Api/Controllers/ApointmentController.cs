@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Api.Models;
 using Api.Repsitories;
 using Api.Services;
-
+using System.Security.Claims;
 namespace Api.Controllers
 {
 
@@ -23,7 +24,17 @@ namespace Api.Controllers
                 return Conflict("Conflicting appointment.");
             return Ok(appt);
         }
+        [Authorize]
+        [HttpGet("for")]
+        public IActionResult GetWithToken()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+            var appointments = _svc.GetAppointmentsFor(userId, role);
+            return Ok(appointments);
+        }
     }
     public record AppointmentRequest(int PatientId, int DoctorId, DateTime Start, DateTime End);
+
 }
 

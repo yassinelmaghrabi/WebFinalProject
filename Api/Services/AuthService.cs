@@ -1,5 +1,9 @@
 using Api.Data;
 using Api.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 namespace Api.Services
 {
 
@@ -19,8 +23,30 @@ namespace Api.Services
         }
         public string GenerateToken(User user)
         {
-            return $"fake-jwt-token-lmao-{user.Email}";
+            var handler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes("supersecretsupersecretsupersecretsupersecret");
+
+            var claims = new List<Claim>
+            {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(24),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
+            };
+
+            var token = handler.CreateToken(descriptor);
+            return handler.WriteToken(token);
         }
+
 
     }
 

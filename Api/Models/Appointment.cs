@@ -12,7 +12,7 @@ namespace Api.Models
 
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
-        public bool Notified { get; set; }
+
         public string Status { get; set; } = "Booked";
 
     }
